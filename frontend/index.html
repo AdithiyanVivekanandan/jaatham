@@ -2,9 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <link rel="icon" type="image/png" href="/pwa-192x192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- SEO -->
+    <title>Jatham — Vedic Matchmaking Platform</title>
+    <meta name="description" content="Complete Thirumana Porutham matchmaking — all 10 compatibility checks, Dosha analysis, and AI-generated insights. Built for Tamil families." />
+    <meta name="theme-color" content="#9B2C2C" />
+
+    <!-- Security Meta Tags -->
+    <!-- 
+      NOTE: The primary CSP is set via HTTP headers by the backend (Helmet).
+      This meta tag provides a fallback for the frontend-only static build.
+      The backend header takes precedence when served through the proxy.
+    -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- PWA -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Fonts — preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

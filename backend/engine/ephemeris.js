@@ -2,17 +2,26 @@ let swisseph;
 try {
   swisseph = require('swisseph');
 } catch (err) {
-  console.warn('swisseph not installed, using mock');
+  console.warn('swisseph not installed, using deterministic development mock');
+  // Deterministic mock — seeded by Julian Day so same DOB always gives same chart
+  const deterministicLong = (jd, offset) => ((jd * 137.508 + offset * 31.41) % 360 + 360) % 360;
   swisseph = {
-    swe_julday: () => 2451545.0,
+    swe_julday: (y, m, d, h) => {
+      // Simplified Julian Day formula
+      const A = Math.floor((14 - m) / 12);
+      const Y = y + 4800 - A;
+      const M = m + 12 * A - 3;
+      return d + Math.floor((153 * M + 2) / 5) + 365 * Y + Math.floor(Y / 4) - Math.floor(Y / 100) + Math.floor(Y / 400) - 32045 + h / 24;
+    },
     SE_GREG_CAL: 1,
     swe_set_sid_mode: () => {},
     SE_SIDM_LAHIRI: 1,
     SEFLG_SPEED: 256,
     SEFLG_SIDEREAL: 64,
-    SE_SUN: 0, SE_MOON: 1, SE_MARS: 4, SE_MERCURY: 2, SE_JUPITER: 5, SE_VENUS: 3, SE_SATURN: 6, SE_TRUE_NODE: 11,
-    swe_calc_ut: (julday, body, flags) => ({ longitude: Math.random() * 360 }),
-    swe_houses: () => ({ ascendant: Math.random() * 360 })
+    SE_SUN: 0, SE_MOON: 1, SE_MARS: 4, SE_MERCURY: 2,
+    SE_JUPITER: 5, SE_VENUS: 3, SE_SATURN: 6, SE_TRUE_NODE: 11,
+    swe_calc_ut: (julday, body, flags) => ({ longitude: deterministicLong(julday, body) }),
+    swe_houses: (jd, lat, lon) => ({ ascendant: deterministicLong(jd + lat, 7) })
   };
 }
 const { NAKSHATRAS, RASI_NAMES } = require('./constants');

@@ -1,0 +1,19 @@
+# Jatham — robots.txt
+# All crawlers are blocked from the app sections
+
+# Block all bots from authenticated/app sections
+User-agent: *
+Disallow: /dashboard
+Disallow: /profile-setup
+Disallow: /match/
+Disallow: /saved
+Disallow: /settings
+Disallow: /quiz
+Disallow: /join/
+Disallow: /profile/
+
+# Allow indexing of the public landing page only
+Allow: /$
+Allow: /login
+
+# No crawl delay needed for disallowed paths

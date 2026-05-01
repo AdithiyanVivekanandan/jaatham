@@ -1,4 +1,6 @@
-const fetch = require('node-fetch'); // Ensure node-fetch or native fetch in Node 18+
+// Uses native fetch (Node.js 18+ built-in — no import needed)
+// Model: claude-sonnet-4-5 (current production model)
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-5';
 
 const SYSTEM_PROMPT = `You are an expert Vedic astrology compatibility analyst specializing in the South Indian Thirumana Porutham system. You receive structured JSON from a deterministic rule engine and produce a clear, honest, culturally-appropriate compatibility report.
 
@@ -54,8 +56,8 @@ async function generateAIReport(matchResult, profileA, profileB) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', // Using a generic known model name if 20250514 is future placeholder
-        max_tokens: 1000,
+        model: CLAUDE_MODEL,
+        max_tokens: 1500,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: buildAIPrompt(matchResult, profileA, profileB) }]
       })

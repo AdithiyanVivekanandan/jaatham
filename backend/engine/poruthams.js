@@ -129,12 +129,36 @@ function computePorutham(profileA, profileB) {
   const doshaAnalysis = computeDoshaAnalysis(profileA, profileB);
 
   // AGGREGATE
+  // Standard count
   const values = Object.values(results);
   const passCount = values.filter(v => v.result === 'pass').length;
   const conditionalCount = values.filter(v => v.result === 'conditional').length;
   const failCount = values.filter(v => v.result === 'fail').length;
   const hasHardReject = results.rajju.isCritical || results.vedha.result === 'fail' || doshaAnalysis.nadiDosham;
-  const overallScore = Math.round(((passCount * 10) + (conditionalCount * 5)) / 100 * 100);
+  
+  // Weighted score: critical poruthams (Rajju, Nadi/Dosha, Gana) count double
+  // Out of 130 weighted points max
+  const WEIGHTS = {
+    dina: 1, gana: 2, yoni: 1, rasi: 1, rasiAthipathi: 1,
+    rajju: 2, vedha: 2, vasya: 1, mahendra: 1, streeDeergha: 1
+  };
+  const PASS_SCORE = 10;
+  const CONDITIONAL_SCORE = 5;
+  const FAIL_SCORE = 0;
+  
+  let weightedTotal = 0;
+  let weightedMax = 0;
+  for (const [key, val] of Object.entries(results)) {
+    const w = WEIGHTS[key] || 1;
+    weightedMax += w * PASS_SCORE;
+    if (val.result === 'pass') weightedTotal += w * PASS_SCORE;
+    else if (val.result === 'conditional') weightedTotal += w * CONDITIONAL_SCORE;
+    else weightedTotal += w * FAIL_SCORE;
+  }
+  
+  // Apply hard reject penalty
+  let overallScore = Math.round((weightedTotal / weightedMax) * 100);
+  if (hasHardReject) overallScore = Math.min(overallScore, 35); // cap at 35 if hard reject
 
   return {
     poruthams: results,
@@ -143,7 +167,10 @@ function computePorutham(profileA, profileB) {
     conditionalCount,
     failCount,
     hasHardReject,
-    overallScore
+    overallScore,
+    totalPoruthams: 10,
+    weightedScore: weightedTotal,
+    weightedMax
   };
 }
 

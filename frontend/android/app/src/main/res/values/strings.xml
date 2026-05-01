@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Jatham</string>
+    <string name="title_activity_main">Jatham</string>
+    <string name="package_name">com.jatham.app</string>
+    <string name="custom_url_scheme">com.jatham.app</string>
+</resources>

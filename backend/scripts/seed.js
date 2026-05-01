@@ -1,83 +1,125 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const path = require('path');
-
-// Load env
-dotenv.config({ path: path.join(__dirname, '../../.env') });
-// fallback to backend/.env if necessary
-dotenv.config({ path: path.join(__dirname, '../.env') });
-
-const DoshaRule = require('../models/DoshaRule');
 const Community = require('../models/Community');
-const connectDB = require('../config/db');
+const DoshaRule = require('../models/DoshaRule');
 
-const initialDoshas = [
+const COMMUNITIES = [
   {
-    doshaName: 'chevvai',
-    triggerCondition: { marsHouse: [1, 2, 4, 7, 8, 12] },
-    severity: 'severe',
-    cancellationRules: [
-      { condition: 'Mars in own sign (Aries/Scorpio)', cancellationLogic: { sign: ['aries', 'scorpio'] } },
-      { condition: 'Mars exalted (Capricorn)', cancellationLogic: { sign: ['capricorn'] } }
-    ],
-    isActive: true,
-    source: 'Standard South Indian Parashara'
+    name: 'Iyer Community — Chennai',
+    inviteCode: 'IYER2024',
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    memberCount: 0,
+    isActive: true
   },
   {
-    doshaName: 'rajju',
-    triggerCondition: { condition: 'Same Rajju Group AND Same Direction' },
-    severity: 'severe',
-    cancellationRules: [
-      { condition: 'Both have Chevvai Dosham', cancellationLogic: { bothHaveChevvai: true } }
-    ],
-    isActive: true,
-    source: 'Standard South Indian Parashara'
-  },
-  {
-    doshaName: 'nadi',
-    triggerCondition: { condition: 'Same Nadi Type' },
-    severity: 'severe',
-    cancellationRules: [
-      { condition: 'Both are same Nakshatra', cancellationLogic: { sameNakshatra: true } }
-    ],
-    isActive: true,
-    source: 'Standard South Indian Parashara'
+    name: 'Mudaliar Community — Coimbatore',
+    inviteCode: 'MUDL2024',
+    city: 'Coimbatore',
+    state: 'Tamil Nadu',
+    memberCount: 0,
+    isActive: true
   }
 ];
 
-const testCommunity = {
-  name: 'Test Community',
-  inviteCode: 'TEST1234',
-  memberCount: 0,
-  isActive: true,
-  city: 'Chennai',
-  state: 'Tamil Nadu'
-};
-
-const seedData = async () => {
-  if (!process.env.MONGODB_URI) {
-    console.warn('MONGODB_URI not found. Skipping seed.');
-    process.exit(0);
+const DOSHA_RULES = [
+  {
+    doshaName: 'chevvai',
+    triggerCondition: { marsHouses: [1, 2, 4, 7, 8, 12] },
+    severity: 'severe',
+    cancellationRules: [
+      {
+        condition: 'Mars in own sign (Aries or Scorpio)',
+        cancellationLogic: { marsSign: ['aries', 'scorpio'] }
+      },
+      {
+        condition: 'Mars exalted (Capricorn)',
+        cancellationLogic: { marsSign: ['capricorn'] }
+      },
+      {
+        condition: 'Both partners have Chevvai Dosham (mutual cancellation)',
+        cancellationLogic: { bothHaveChevvai: true }
+      }
+    ],
+    isActive: true,
+    source: 'Brihat Parashara Hora Shastra, Ch. 18; Jataka Parijata'
+  },
+  {
+    doshaName: 'rajju',
+    triggerCondition: { sameRajjuGroupAndDirection: true },
+    severity: 'severe',
+    cancellationRules: [
+      {
+        condition: 'Both partners have Chevvai Dosham cancels Rajju restriction in some traditions',
+        cancellationLogic: { bothHaveChevvai: true }
+      }
+    ],
+    isActive: true,
+    source: 'Muhurtha Chintamani; traditional South Indian practice'
+  },
+  {
+    doshaName: 'nadi',
+    triggerCondition: { sameNadiType: true },
+    severity: 'severe',
+    cancellationRules: [
+      {
+        condition: 'Both have the same nakshatra (exception case)',
+        cancellationLogic: { sameNakshatra: true }
+      }
+    ],
+    isActive: true,
+    source: 'Brihat Samhita; Tamil Jyotish tradition'
+  },
+  {
+    doshaName: 'vedha',
+    triggerCondition: { isVedhaPair: true },
+    severity: 'mild',
+    cancellationRules: [
+      {
+        condition: 'Nakshatra lords are mutual friends',
+        cancellationLogic: { nadiLordsFriendly: true }
+      }
+    ],
+    isActive: true,
+    source: 'Muhurtha Chintamani'
   }
+];
 
-  await connectDB();
-
+async function seed() {
+  const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/jatham';
+  
   try {
-    // Seed Dosha Rules
-    await DoshaRule.deleteMany({});
-    await DoshaRule.insertMany(initialDoshas);
-    console.log('Dosha rules seeded.');
+    await mongoose.connect(MONGO_URI);
+    console.log('Connected to MongoDB for seeding');
 
-    // Seed Community
-    await Community.deleteMany({ inviteCode: 'TEST1234' });
-    await Community.create(testCommunity);
-    console.log('Test community seeded.');
+    // Seed communities (skip if already exist)
+    for (const c of COMMUNITIES) {
+      const exists = await Community.findOne({ inviteCode: c.inviteCode });
+      if (!exists) {
+        await Community.create(c);
+        console.log(`✓ Created community: ${c.name}`);
+      } else {
+        console.log(`→ Community already exists: ${c.name}`);
+      }
+    }
 
+    // Seed dosha rules (skip if already exist)
+    for (const rule of DOSHA_RULES) {
+      const exists = await DoshaRule.findOne({ doshaName: rule.doshaName });
+      if (!exists) {
+        await DoshaRule.create(rule);
+        console.log(`✓ Created dosha rule: ${rule.doshaName}`);
+      } else {
+        console.log(`→ Dosha rule already exists: ${rule.doshaName}`);
+      }
+    }
+
+    console.log('\n✅ Seed complete!');
     process.exit(0);
-  } catch (error) {
-    console.error('Error seeding data:', error);
+  } catch (err) {
+    console.error('Seed failed:', err);
     process.exit(1);
   }
-};
+}
 
-seedData();
+seed();

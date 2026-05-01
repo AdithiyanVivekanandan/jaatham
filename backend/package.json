@@ -1,14 +1,23 @@
 {
-  "name": "backend",
+  "name": "jatham-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Jatham — Vedic Matchmaking Platform backend API",
   "main": "index.js",
-  "scripts": {
-    "test": "vitest run"
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "vitest run",
+    "seed": "node scripts/seed.js",
+    "healthcheck": "node scripts/healthcheck.js",
+    "lint": "eslint . --ext .js --max-warnings 0"
+  },
+  "keywords": ["matchmaking", "vedic", "astrology"],
+  "author": "Adithiyan Vivekanandan",
+  "license": "UNLICENSED",
   "type": "commonjs",
   "devDependencies": {
     "eslint": "^10.2.1",
@@ -21,7 +30,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "bull": "^4.16.5",
+    "bullmq": "^5.76.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -33,7 +42,7 @@
     "jspdf": "^4.2.1",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
-    "multer-storage-cloudinary": "^4.0.0",
+    "multer-storage-cloudinary": "^2.2.1",
     "node-fetch": "^3.3.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
