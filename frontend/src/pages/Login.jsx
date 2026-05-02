@@ -27,7 +27,9 @@ const Login = () => {
       await apiClient.post('/auth/request-otp', payload);
       setStep('otp');
     } catch (err) {
-      setError(err.message || 'Failed to send code. Try again.');
+      // Ensure we only store a string to prevent React rendering crashes
+      const errorMessage = typeof err === 'string' ? err : (err.message || 'Failed to send code. Try again.');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,8 @@ const Login = () => {
         navigate('/');
       }
     } catch (err) {
-      setError(err.message || 'Invalid code. Please try again.');
+      const errorMessage = typeof err === 'string' ? err : (err.message || 'Invalid code. Please try again.');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

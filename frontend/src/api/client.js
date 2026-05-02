@@ -95,11 +95,14 @@ apiClient.interceptors.response.use(
 
     // ── Normalize errors — never expose raw server internals to UI ──────────
     const normalized = {
-      message: error.response?.data?.error || error.message || 'An unexpected error occurred',
+      message: error.response?.data?.error || error.response?.data?.message || error.message || 'An unexpected error occurred',
       status: error.response?.status,
-      code: error.response?.data?.code,
+      code: error.response?.data?.code || (error.response?.status === 404 ? 'NOT_FOUND' : 'ERROR'),
       retryAfter: error.response?.data?.retryAfterMinutes,
     };
+
+    // Log the error for developer visibility in production console
+    console.error(`[API ERROR] ${normalized.code} (${normalized.status}): ${normalized.message}`);
 
     return Promise.reject(normalized);
   }
