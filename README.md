@@ -2,6 +2,13 @@
 
 > This guide explains how to host and run the entire Jatham platform at **ZERO COST** using modern free-tier services.
 
+### 1. Clone & Install
+```bash
+git clone https://github.com/AdithiyanVivekanandan/jaatham.git
+cd jaatham
+npm run install:all
+```
+
 ---
 
 ## 🏗️ The "Zero Cost" Stack

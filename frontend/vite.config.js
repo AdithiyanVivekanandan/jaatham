@@ -88,7 +88,7 @@ export default defineConfig({
     }
   },
   build: {
-    rolldownOptions: {
+    rollupOptions: {
       output: {
         // Code splitting to reduce bundle size
         manualChunks(id) {

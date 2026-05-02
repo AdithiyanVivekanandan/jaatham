@@ -1208,7 +1208,7 @@ PORT=5000
 FRONTEND_URL=http://localhost:5173
 
 # MongoDB
-MONGODB_URI=mongodb+srv://...
+MONGODB_URI= mongodb+srv://teamstadesign_db_user:8KClLxNsphjE9kIf@cluster001.qqismek.mongodb.net/?appName=cluster001
 MONGODB_ENCRYPTION_KEY=<base64 96-byte local master key>
 
 # JWT
@@ -1221,19 +1221,21 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 
 # Geocoding
-OPENCAGE_API_KEY=
+OPENCAGE_API_KEY=011dd24a30714ae4a7317e24665eed6f
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+CLOUDINARY_CLOUD_NAME=dyvxulmnl
+CLOUDINARY_API_KEY=629263513422548
+CLOUDINARY_API_SECRET=Tvih5gEByWJ8-j8OsHYkjayToLM
 
-# Anthropic
-ANTHROPIC_API_KEY=
+# gemini api 
+GEMINI_API_KEY=AIzaSyCLEUJZ1D8BwQceyyazffK6JXZdwEQfcAk
 
 # Redis
-REDIS_URL=redis://localhost:6379
+UPSTASH_REDIS_REST_URL="https://robust-bonefish-112866.upstash.io"
 
+# VERCEL 
+ API KEY = https://vercel.com/adithiyanvivekanandans-projects/jaatham
 # SendGrid (email)
 SENDGRID_API_KEY=
 EMAIL_FROM=noreply@yourdomain.com
@@ -1241,6 +1243,7 @@ EMAIL_FROM=noreply@yourdomain.com
 # Ephemeris data path (swisseph)
 SE_EPHE_PATH=./ephe
 ```
+resend api = re_e29YgJ2q_3ye9vWGaoAmCgZk2LZ7TrnuH
 
 ---
 
