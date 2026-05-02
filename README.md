@@ -1,176 +1,69 @@
-# Jatham — Vedic Matchmaking Platform
+# Jatham — 100% Free Deployment Guide
 
-> Complete Thirumana Porutham matchmaking with AI synthesis, Dosha analysis, and PDF reports.  
-> Built for South Indian Tamil families. DPDP Act 2023 compliant.
-
----
-
-## Architecture
-
-```
-Frontend (React + Vite PWA)  ─→  Vercel
-Backend  (Express + Node 20) ─→  Railway
-Database (MongoDB)           ─→  MongoDB Atlas
-Cache    (Redis + BullMQ)    ─→  Railway Redis
-CDN      (Cloudflare)        ─→  In front of Vercel + Railway
-```
+> This guide explains how to host and run the entire Jatham platform at **ZERO COST** using modern free-tier services.
 
 ---
 
-## Quick Start (Local Development)
+## 🏗️ The "Zero Cost" Stack
 
-### Prerequisites
-- Node.js 20+
-- MongoDB (local or Atlas free tier)
-- Redis (optional — PDF queue degrades gracefully without it)
-
-### 1. Clone & Install
-```bash
-git clone https://github.com/AdithiyanVivekanandan/jatham.git
-cd jatham
-npm run install:all
-```
-
-### 2. Configure Backend
-```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env with your values
-```
-
-Minimum required for local dev:
-```env
-NODE_ENV=development
-MONGODB_URI=mongodb://127.0.0.1:27017/jatham
-JWT_ACCESS_SECRET=<generate: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
-JWT_REFRESH_SECRET=<generate: same command, different output>
-```
-
-### 3. Seed the Database
-```bash
-npm run seed
-```
-
-### 4. Run Both Servers
-```bash
-# Terminal 1 — Backend (port 5000)
-npm run dev:backend
-
-# Terminal 2 — Frontend (port 3000, proxies /api → :5000)
-npm run dev:frontend
-```
-
-Open: http://localhost:3000
+| Layer | Service | Why? |
+|---|---|---|
+| **Frontend** | [Vercel](https://vercel.com) | Permanent free tier for personal projects. |
+| **Backend** | [Render](https://render.com) | Free tier for Web Services (Node.js). |
+| **Database** | [MongoDB Atlas](https://mongodb.com/atlas) | M0 Free Cluster (512MB - plenty for 10k users). |
+| **Redis (Cache)** | [Upstash](https://upstash.com) | Serverless Redis (10,000 requests/day for free). |
+| **AI (Reports)** | [Gemini AI](https://aistudio.google.com) | **Google Gemini 1.5 Flash** (15 RPM, $0 cost). |
+| **Email (OTP)** | [Resend](https://resend.com) | 3,000 emails/month free. No credit card required. |
+| **Images** | [Cloudinary](https://cloudinary.com) | 25 Credits/month (Free). |
+| **Geocoding** | [OpenCage](https://opencagedata.com) | 2,500 requests/day free. |
 
 ---
 
-## Deployment
+## 🚀 Step-by-Step Setup
 
-### 8.1 — MongoDB Atlas
-1. Create a free M0 cluster at [cloud.mongodb.com](https://cloud.mongodb.com)
-2. Create a database user and whitelist `0.0.0.0/0` (Railway IPs are dynamic)
-3. Copy the connection string → use as `MONGODB_URI` in Railway
+### 1. Database (MongoDB Atlas)
+- Create a free cluster.
+- In "Network Access", allow `0.0.0.0/0` (Render IPs are dynamic).
+- Copy the connection string.
 
-### 8.2 — Railway (Backend + Redis)
-1. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-2. Select the `jatham` repo → set **Root Directory** to `backend`
-3. Add a **Redis** service to the same project
-4. Set environment variables (see [§ Environment Variables](#environment-variables))
-5. Railway auto-detects `railway.json` and runs `npm start`
+### 2. Backend (Render.com)
+- Connect your GitHub repo.
+- Select the `backend` folder as the root.
+- **Environment Variables**:
+  - `NODE_ENV`: `production`
+  - `MONGODB_URI`: `<Your Atlas Link>`
+  - `JWT_ACCESS_SECRET`: `<64 char hex>`
+  - `JWT_REFRESH_SECRET`: `<64 char hex>`
+  - `GEMINI_API_KEY`: `<From Google AI Studio>`
+  - `RESEND_API_KEY`: `<From Resend Dashboard>`
+  - `REDIS_URL`: `<From Upstash Dashboard>`
+  - `FRONTEND_URL`: `https://your-app.vercel.app`
 
-**Required Railway variables:**
-```
-NODE_ENV=production
-MONGODB_URI=<Atlas connection string>
-JWT_ACCESS_SECRET=<64 hex chars>
-JWT_REFRESH_SECRET=<different 64 hex chars>
-FRONTEND_URL=https://jatham.app
-REDIS_URL=<Railway Redis internal URL>
-ANTHROPIC_API_KEY=<your key>
-CLOUDINARY_CLOUD_NAME=<your cloud>
-CLOUDINARY_API_KEY=<your key>
-CLOUDINARY_API_SECRET=<your secret>
-OPENCAGE_API_KEY=<your key>
-TWILIO_ACCOUNT_SID=<your SID>
-TWILIO_AUTH_TOKEN=<your token>
-TWILIO_PHONE_NUMBER=<your number>
-```
+### 3. Frontend (Vercel)
+- Connect your GitHub repo.
+- Select the `frontend` folder as the root.
+- **Environment Variables**:
+  - `VITE_API_URL`: `https://your-render-app.onrender.com/api`
 
-### 8.3 — Vercel (Frontend)
-1. Go to [vercel.com](https://vercel.com) → New Project → Import from GitHub
-2. Select `jatham` repo → set **Root Directory** to `frontend`
-3. Vercel auto-detects Vite. Build command: `npm run build`, Output: `dist`
-4. Add environment variable:
-   ```
-   VITE_API_URL=https://<your-railway-domain>/api
-   ```
+### 4. Redis (Upstash)
+- Create a "Global" Redis database.
+- Copy the **Connection URL** (starting with `redis://`).
 
-### 8.4 — GitHub Actions CI/CD
-Add these secrets in **GitHub → Settings → Secrets → Actions**:
-
-| Secret | How to get it |
-|---|---|
-| `RAILWAY_TOKEN` | Railway → Account → Tokens → Create |
-| `RAILWAY_SERVICE_ID` | Railway → Project → Service → Settings |
-| `BACKEND_HEALTH_URL` | `https://<railway-domain>/health` |
-| `VERCEL_TOKEN` | Vercel → Settings → Tokens → Create |
-| `VERCEL_ORG_ID` | Run `vercel link` in `/frontend`, check `.vercel/project.json` |
-| `VERCEL_PROJECT_ID` | Same file as above |
-| `VITE_API_URL` | Your Railway backend URL + `/api` |
-
-After adding secrets — push to `main` to trigger the pipeline.
-
-### 8.5 — Cloudflare
-1. Add your domain in Cloudflare DNS
-2. Point to Vercel: Add CNAME `@` → `cname.vercel-dns.com` (Proxied ☁️)
-3. Point API: Add CNAME `api` → `<your-railway-domain>` (Proxied ☁️)
-4. **SSL/TLS** → Set to **Full (Strict)**
-5. **Security** → WAF → Enable Managed Ruleset
-6. **Page Rules** → Add:
-   - `*jatham.app/api/*` → Cache Level: Bypass
-   - `*jatham.app/assets/*` → Cache Level: Cache Everything, Edge TTL: 1 month
+### 5. Email (Resend)
+- Create an account.
+- Copy the API Key.
+- *Note*: On the free tier, you can only send to your own email unless you verify a domain. To verify a domain for free, use a free `.tk` or similar or just use the testing mode.
 
 ---
 
-## Environment Variables
-
-See [`backend/.env.example`](backend/.env.example) for full backend list.  
-See [`frontend/.env.example`](frontend/.env.example) for frontend variables.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite 8, Framer Motion, Recharts |
-| PWA | vite-plugin-pwa, Workbox |
-| Mobile | Capacitor 8 (Android) |
-| Backend | Express 5, Node 20 |
-| Database | MongoDB (Mongoose) + CSFLE encryption |
-| Queue | BullMQ + Redis |
-| Auth | JWT (HS256) + OTP via Twilio + bcrypt |
-| AI | Claude claude-sonnet-4-5 (Anthropic) |
-| Photo | Cloudinary |
-| PDF | jsPDF (6-page report) |
-| Security | Helmet, mongoSanitize, xss-clean, rate-limit, bruteForce.js |
+## ⚠️ Important Considerations for "Free"
+1. **Render Cold Starts**: On the free tier, the backend "sleeps" after 15 minutes of no use. The first person to visit after a break will wait ~30 seconds for the server to wake up.
+2. **Resend Sending Domain**: You will need to add a domain to Resend to send emails to *other* people. You can get free subdomains or use a cheap `.xyz` domain.
+3. **Gemini Limits**: 15 requests per minute is plenty for a small family/community app.
 
 ---
 
-## Running Tests
-```bash
-npm test
-# Runs vitest with mongodb-memory-server — no real DB needed
-```
+## Technical Support
+If you encounter "API Error" messages, check your Render logs. Most issues are due to missing Environment Variables.
 
----
-
-## Legal & Compliance
-- DPDP Act 2023: `DELETE /api/users/me` hard-deletes all user data
-- Disclaimer modal required before viewing match results (per masterDOCUMENT §11.6)
-- Minimum age: 18 years (enforced in Zod schema, DOB field)
-- No PII in server logs (auditLogger masks all sensitive fields)
-
----
-
-## License
-UNLICENSED — Private project. All rights reserved.
+**Now go launch your platform for $0!**

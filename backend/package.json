@@ -15,7 +15,11 @@
     "healthcheck": "node scripts/healthcheck.js",
     "lint": "eslint . --ext .js --max-warnings 0"
   },
-  "keywords": ["matchmaking", "vedic", "astrology"],
+  "keywords": [
+    "matchmaking",
+    "vedic",
+    "astrology"
+  ],
   "author": "Adithiyan Vivekanandan",
   "license": "UNLICENSED",
   "type": "commonjs",
@@ -44,6 +48,7 @@
     "multer": "^2.1.1",
     "multer-storage-cloudinary": "^2.2.1",
     "node-fetch": "^3.3.2",
+    "resend": "^6.12.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "xss-clean": "^0.1.4",

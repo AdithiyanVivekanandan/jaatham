@@ -2,25 +2,25 @@
  * User.js — User model
  * 
  * Security notes:
- * - phone field is marked for CSFLE encryption in production
+ * - Supports both phone and email as identifiers (facilitates 100% free email-auth)
+ * - phone/email fields are marked for CSFLE encryption in production
  * - otpHash, refreshTokenHash are bcrypt hashes — NEVER store plaintext
- * - otpAttempts tracks per-user OTP failure count (server-side brute force guard)
- * - Indexes: phone (unique), profileId, communityId
  */
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-  // Identity — phone is encrypted via CSFLE in production
+  // Identity — one of these must be present
   phone: {
     type: String,
-    required: true,
+    sparse: true,
     unique: true,
     index: true
   },
   email: {
     type: String,
     sparse: true,
-    select: false // Never returned in queries unless explicitly selected
+    unique: true,
+    index: true
   },
   role: {
     type: String,
@@ -28,11 +28,11 @@ const UserSchema = new mongoose.Schema({
     default: 'parent'
   },
 
-  // Auth — all are hashes, never plaintext
+  // Auth
   refreshTokenHash: { type: String, select: false },
   otpHash: { type: String, select: false },
   otpExpiry: { type: Date, select: false },
-  otpAttempts: { type: Number, default: 0, select: false }, // brute force counter
+  otpAttempts: { type: Number, default: 0, select: false },
 
   // Status
   isVerified: { type: Boolean, default: false },
@@ -40,7 +40,6 @@ const UserSchema = new mongoose.Schema({
 
   // Preferences
   language: { type: String, enum: ['en', 'ta'], default: 'en' },
-  defaultCalculationMethod: { type: String, enum: ['thirukkanitha', 'vakyam'], default: 'thirukkanitha' },
 
   // Relations
   profileId: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile', index: true },
@@ -48,29 +47,27 @@ const UserSchema = new mongoose.Schema({
 
   // Timestamps
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, select: false },
 }, {
-  // Prevent mongoose from adding extra fields not in schema
   strict: true,
-  // Never return version key (__v) in API responses
   versionKey: false
 });
 
-// Always update updatedAt on save
-UserSchema.pre('save', function (next) {
-  this.updatedAt = new Date();
-  next();
+// Ensure at least one identity field is present
+UserSchema.pre('validate', function(next) {
+  if (!this.phone && !this.email) {
+    next(new Error('User must have either a phone number or an email address'));
+  } else {
+    next();
+  }
 });
 
-// Ensure sensitive fields are not accidentally serialized to JSON
 UserSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.otpHash;
   delete obj.otpExpiry;
   delete obj.otpAttempts;
   delete obj.refreshTokenHash;
-  delete obj.email;
   delete obj.lastLogin;
   return obj;
 };
