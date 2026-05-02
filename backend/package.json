@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "build": "echo 'No build step required'",
     "test": "vitest run",
     "seed": "node scripts/seed.js",
     "healthcheck": "node scripts/healthcheck.js",
