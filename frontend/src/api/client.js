@@ -93,9 +93,9 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // ── Normalize errors — never expose raw server internals to UI ──────────
+    const rawMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'An unexpected error occurred';
     const normalized = {
-      message: error.response?.data?.error || error.response?.data?.message || error.message || 'An unexpected error occurred',
+      message: typeof rawMessage === 'string' ? rawMessage : (rawMessage.message || JSON.stringify(rawMessage)),
       status: error.response?.status,
       code: error.response?.data?.code || (error.response?.status === 404 ? 'NOT_FOUND' : 'ERROR'),
       retryAfter: error.response?.data?.retryAfterMinutes,

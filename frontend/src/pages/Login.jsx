@@ -27,9 +27,9 @@ const Login = () => {
       await apiClient.post('/auth/request-otp', payload);
       setStep('otp');
     } catch (err) {
-      // Ensure we only store a string to prevent React rendering crashes
+      // Force everything to a string to prevent React child object crash
       const errorMessage = typeof err === 'string' ? err : (err.message || 'Failed to send code. Try again.');
-      setError(errorMessage);
+      setError(String(errorMessage));
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const Login = () => {
       }
     } catch (err) {
       const errorMessage = typeof err === 'string' ? err : (err.message || 'Invalid code. Please try again.');
-      setError(errorMessage);
+      setError(String(errorMessage));
     } finally {
       setLoading(false);
     }
