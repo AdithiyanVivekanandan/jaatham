@@ -34,7 +34,7 @@ app.use(helmet({
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
-      connectSrc: ["'self'", "https://api.anthropic.com", "https://api.opencagedata.com"],
+      connectSrc: ["'self'", "https://generativelanguage.googleapis.com", "https://api.opencagedata.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'none'"],
